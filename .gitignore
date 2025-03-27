@@ -1,0 +1,4 @@
+debian-remaster/
+preseed/secrets-based/src/scripts/network_config.sh
+*.iso
+*.log
