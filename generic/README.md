@@ -37,8 +37,8 @@ The generic preseed ISO builder creates a Debian installation disc that:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/clear-cmos/debian.git
-   cd debian/preseed/generic
+   git clone https://github.com/clear-cmos/deb-preseed.git
+   cd deb-preseed/generic
    ```
 
 2. Run the build script:

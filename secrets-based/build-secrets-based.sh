@@ -1001,10 +1001,6 @@ $SUDO chmod +x "$NETWORK_CONFIG_FILE"
 print_info "Checking for necessary script directories..."
 mkdir -p "$SCRIPTS_DIR"
 
-# Old base.py is no longer used but kept for reference
-if [ -f "$DEB_PRESEED_LOCAL" ]; then
-  print_info "Found existing base.py script (kept for reference only)"
-fi
 
 # Ensure our new setup_optional_packages.sh exists
 if [ ! -f "$SCRIPTS_DIR/setup_optional_packages.sh" ]; then

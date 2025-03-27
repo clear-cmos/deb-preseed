@@ -109,13 +109,7 @@ if [ -f /usr/local/bin/setup_optional_packages.sh ]; then
   echo "$(date): .bash_profile updated to prevent future runs and re-source .bashrc" >> ~/debug.log
 else
   echo "$(date): setup_optional_packages.sh script not found" >> ~/debug.log
-  # Check if old script exists as fallback (for backward compatibility)
-  if [ -f ~/base.py ]; then
-    echo "$(date): Found legacy base.py script" >> ~/debug.log
-    echo "$(date): Please update to use setup_optional_packages.sh" >> ~/debug.log
-  else
-    echo "$(date): No setup scripts found in expected locations" >> ~/debug.log
-  fi
+  echo "$(date): No setup scripts found in expected locations" >> ~/debug.log
 fi
 EOF
 

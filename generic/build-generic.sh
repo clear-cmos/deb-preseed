@@ -28,7 +28,7 @@ CONFIG_DIR="$SRC_DIR/config"
 SCRIPTS_DIR="$SRC_DIR/scripts"
 SERVICES_DIR="$SRC_DIR/services"
 PRESEED_FILE="$CONFIG_DIR/preseed.cfg"
-DEB_PRESEED_URL="https://raw.githubusercontent.com/clear-cmos/debian/refs/heads/main/postinst/base.py"
+DEB_PRESEED_URL="https://raw.githubusercontent.com/clear-cmos/deb-preseed/refs/heads/main/generic/src/scripts/base.py"
 DEB_PRESEED_LOCAL="$SCRIPTS_DIR/base.py"
 
 $SUDO apt-get update
