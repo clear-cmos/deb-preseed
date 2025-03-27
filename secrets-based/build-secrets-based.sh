@@ -1236,11 +1236,8 @@ unset NUM_HOSTS
 unset SMB_HOSTS SMB_SHARES SMB_USERNAMES SMB_PASSWORDS
 unset NUM_SHARES 
 
-openssl enc -aes-256-cbc -salt -in $NEW_ISO -out $NEW_ISO.enc -pbkdf2
-
-$SUDO rm $NEW_ISO
-
-ITEM_NAME="Encrypted ISO Location"
+# Ask if the user wants to encrypt the ISO
+read -p "Do you want to encrypt the ISO? (y/n): " ENCRYPT_CHOICE
 
 # Function to check if an item exists in 1Password
 item_exists() {
@@ -1252,19 +1249,56 @@ item_exists() {
 # Set the destination path
 DESTINATION_PATH="/mnt/syno/software/os"
 
-# Check if the item exists
-if item_exists "$ITEM_NAME"; then
-    echo "Item '$ITEM_NAME' found in 1Password. Moving file..."
-    sudo mv "$NEW_ISO.enc" "$DESTINATION_PATH"
-    FINAL_PATH="$DESTINATION_PATH/$(basename "$NEW_ISO.enc")"
+# Set up item name for 1Password - same name regardless of encryption
+ITEM_NAME="ISO Location"
+
+if [[ "$ENCRYPT_CHOICE" =~ ^[Yy]$ ]]; then
+    # Encrypt the ISO
+    openssl enc -aes-256-cbc -salt -in $NEW_ISO -out $NEW_ISO.enc -pbkdf2
+    $SUDO rm $NEW_ISO
+    OUTPUT_FILE="$NEW_ISO.enc"
+    
+    # Check if the item exists
+    if item_exists "$ITEM_NAME"; then
+        print_info "Item '$ITEM_NAME' found in 1Password. Moving file..."
+        
+        # Define the potential non-encrypted ISO path at the destination
+        UNENCRYPTED_DEST="$DESTINATION_PATH/$(basename "$NEW_ISO")"
+        
+        # Check if a non-encrypted version exists at the destination and delete it
+        if [ -f "$UNENCRYPTED_DEST" ]; then
+            print_warning "Found non-encrypted ISO at destination. Removing it..."
+            $SUDO rm "$UNENCRYPTED_DEST"
+        fi
+        
+        # Move the encrypted file to the destination
+        sudo mv "$OUTPUT_FILE" "$DESTINATION_PATH"
+        FINAL_PATH="$DESTINATION_PATH/$(basename "$OUTPUT_FILE")"
+    else
+        print_info "Item '$ITEM_NAME' not found in 1Password. Skipping move."
+        FINAL_PATH="$OUTPUT_FILE"
+    fi
+    
+    # Create a version of the path without the .enc extension
+    DECRYPTED_PATH="${FINAL_PATH%.enc}"
+    
+    # Print cleaner output with specific text parts in yellow
+    print_success "${YELLOW}Done! Encrypted ISO:${NC} $FINAL_PATH"
+    print_info "${YELLOW}Decrypt command:${NC} openssl enc -aes-256-cbc -d -in $FINAL_PATH -out $DECRYPTED_PATH -pbkdf2"
 else
-    echo "Item '$ITEM_NAME' not found in 1Password. Skipping move."
-    FINAL_PATH="$NEW_ISO.enc"
+    # Skip encryption
+    OUTPUT_FILE="$NEW_ISO"
+    
+    # Check if the item exists
+    if item_exists "$ITEM_NAME"; then
+        print_info "Item '$ITEM_NAME' found in 1Password. Moving file..."
+        sudo mv "$OUTPUT_FILE" "$DESTINATION_PATH"
+        FINAL_PATH="$DESTINATION_PATH/$(basename "$OUTPUT_FILE")"
+    else
+        print_info "Item '$ITEM_NAME' not found in 1Password. Skipping move."
+        FINAL_PATH="$OUTPUT_FILE"
+    fi
+    
+    # Print cleaner output with specific text part in yellow
+    print_success "${YELLOW}Done! ISO:${NC} $FINAL_PATH"
 fi
-
-# Create a version of the path without the .enc extension
-DECRYPTED_PATH="${FINAL_PATH%.enc}"
-
-# Print cleaner output
-print_success "Done! Encrypted ISO: $FINAL_PATH"
-print_info "Decrypt command: openssl enc -aes-256-cbc -d -in $FINAL_PATH -out $DECRYPTED_PATH -pbkdf2"
