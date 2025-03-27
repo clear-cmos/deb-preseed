@@ -1,0 +1,15 @@
+[Unit]
+Description=Force password change on first boot
+DefaultDependencies=no
+After=systemd-user-sessions.service
+Before=multi-user.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'exec /usr/local/sbin/init.sh < /dev/tty1 > /dev/tty1 2>&1'
+TimeoutSec=infinity
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
